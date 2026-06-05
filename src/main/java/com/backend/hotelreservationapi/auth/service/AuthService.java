@@ -37,7 +37,7 @@ public class AuthService {
             utility.checkIpLimit(ip);
             utility.log(email.getEmail(), ip, "Request access allowed", OtpRequestStatusEnum.ALLOWED);
           String rawOtp = utility.createOtp(email.getEmail());
-            emailService.sendOtpEmail(email.getEmail(), rawOtp);
+            emailService.sendOtpEmailAsync(email.getEmail(), rawOtp);
             return new  OtpResponseDto(email.getEmail(), "OTP sent successfully");
         } catch (RateLimitExceededException ex) {
             utility.log(email.getEmail(), ip, ex.getMessage(), OtpRequestStatusEnum.BLOCKED);

@@ -9,6 +9,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -17,11 +18,12 @@ import org.springframework.stereotype.Service;
 public class EmailService {
     private final JavaMailSender mailSender;
 
+    @Async("emailExecutor")
     @Retryable(
             retryFor = MailSendException.class,
             backoff = @Backoff(delay = 2000, multiplier = 3.0)
     )
-    public void sendOtpEmail(String email, String otp) {
+    public void sendOtpEmailAsync(String email, String otp) {
 
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(email);
@@ -29,7 +31,7 @@ public class EmailService {
         message.setText(buildMessage(otp));
         mailSender.send(message);
 
-        log.info("Sending email to: {}", email);
+        log.info("Email sent to: {}", email);
     }
 
     @Recover
