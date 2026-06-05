@@ -1,13 +1,11 @@
 package com.backend.hotelreservationapi.auth.entity;
 
 
-import com.backend.hotelreservationapi.auth.dto.EmailRequestDto;
 import com.backend.hotelreservationapi.auth.enums.OtpRequestStatusEnum;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity

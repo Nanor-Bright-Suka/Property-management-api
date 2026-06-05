@@ -1,7 +1,6 @@
 package com.backend.hotelreservationapi.auth.entity;
 
 
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

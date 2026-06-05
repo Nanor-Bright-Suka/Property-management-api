@@ -2,6 +2,7 @@ package com.backend.hotelreservationapi.auth.util;
 
 import java.time.Instant;
 
+
 public record ApiErrorResponse(
          int status,
          String message,

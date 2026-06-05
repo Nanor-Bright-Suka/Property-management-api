@@ -4,21 +4,19 @@ import com.backend.hotelreservationapi.auth.dto.EmailRequestDto;
 import com.backend.hotelreservationapi.auth.entity.OtpRequestLog;
 import com.backend.hotelreservationapi.auth.entity.OtpSession;
 import com.backend.hotelreservationapi.auth.enums.OtpRequestStatusEnum;
+import com.backend.hotelreservationapi.auth.exception.InvalidOtpException;
 import com.backend.hotelreservationapi.auth.exception.RateLimitExceededException;
 import com.backend.hotelreservationapi.auth.repository.OtpRequestLogRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.security.SecureRandom;
 import java.time.Duration;
 import java.time.Instant;
-
 
 @Component
 @RequiredArgsConstructor
@@ -32,8 +30,6 @@ public class Utility {
 
 
     private static final SecureRandom secureRandom = new SecureRandom();
-    private static final int OTP_LENGTH = 6;
-
 
     private final RedisTemplate<String, OtpSession> redisOtpSessionTemplate;
     private static final long OTP_TTL_MINUTES = 5;
@@ -44,7 +40,7 @@ public class Utility {
     private final OtpRequestLogRepository otpRequestLogRepository;
 
 
-    //private final JavaMailSender mailSender;
+
 
     public  String extractClientIp(HttpServletRequest request) {
         String xfHeader = request.getHeader("X-Forwarded-For");
@@ -78,7 +74,7 @@ public class Utility {
 
  public  void checkEmailLimit(EmailRequestDto email){
 
-        String key = "rate:email:" + email.email();
+        String key = "rate:email:" + email.getEmail();
 
         String currentEmailValue = redisTemplate.opsForValue().get(key);
 
@@ -114,12 +110,7 @@ public class Utility {
 
 
     public String generateOtp() {
-
-        int min = (int) Math.pow(10, OTP_LENGTH - 1);
-        int max = (int) Math.pow(10, OTP_LENGTH) - 1;
-
-        int otp = secureRandom.nextInt(max - min + 1) + min;
-
+        int otp = secureRandom.nextInt(900000) + 100000;
         return String.valueOf(otp);
     }
 
@@ -153,7 +144,6 @@ public class Utility {
         );
     }
 
-
     public String createOtp(String email) {
         String otp = generateOtp();
         String otpHash = hashOtp(otp);
@@ -163,24 +153,7 @@ public class Utility {
 
 
 
-//    public void sendOtpEmail(String email, String otp) {
-//
-//        SimpleMailMessage message = new SimpleMailMessage();
-//
-//        message.setTo(email);
-//        message.setSubject("Your OTP Code");
-//        message.setText(buildMessage(otp));
-//
-//        mailSender.send(message);
-//    }
-//
-//    private String buildMessage(String otp) {
-//        return "Your OTP code is: " + otp +
-//                "\n\nThis code expires in 5 minutes." +
-//                "\nIf you did not request this, ignore this email.";
-//    }
-//
-//
+
 
 
 

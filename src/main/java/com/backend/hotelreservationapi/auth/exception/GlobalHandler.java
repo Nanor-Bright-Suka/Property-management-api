@@ -2,7 +2,6 @@ package com.backend.hotelreservationapi.auth.exception;
 
 
 import com.backend.hotelreservationapi.auth.util.ApiErrorResponse;
-import jakarta.annotation.Nonnull;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,10 +10,10 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.time.Instant;
 
 @RestControllerAdvice
 public class GlobalHandler{
+
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiErrorResponse> handleValidationErrors(
@@ -69,6 +68,19 @@ public class GlobalHandler{
     }
 
 
+    @ExceptionHandler(InvalidOtpException.class)
+    public ResponseEntity<ApiErrorResponse> handleInvalidOtp(InvalidOtpException ex) {
+        return ResponseEntity
+                .status(401)
+                .body(new ApiErrorResponse(
+                        HttpStatus.UNAUTHORIZED.value(),
+                        ex.getMessage(),
+                        null
+
+                ));
+
+    }
+
 
 
 
@@ -87,8 +99,6 @@ public class GlobalHandler{
 
                 ));
     }
-
-
 
 
 
