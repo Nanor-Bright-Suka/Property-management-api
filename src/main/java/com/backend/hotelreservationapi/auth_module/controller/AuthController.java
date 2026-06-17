@@ -9,7 +9,6 @@ import com.backend.hotelreservationapi.auth_module.dto.EmailRequestDto;
 import com.backend.hotelreservationapi.auth_module.dto.OtpResponseDto;
 import com.backend.hotelreservationapi.auth_module.dto.VerifyOtpRequestDto;
 import com.backend.hotelreservationapi.auth_module.service.AuthService;
-import io.jsonwebtoken.Jwts;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -17,7 +16,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.Key;
 
 @RestController
 @RequestMapping("/api/v1/auth")

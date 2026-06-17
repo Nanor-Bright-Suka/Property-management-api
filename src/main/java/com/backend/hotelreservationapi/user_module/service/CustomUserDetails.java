@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 
 public class CustomUserDetails implements UserDetails {
@@ -36,10 +37,13 @@ public class CustomUserDetails implements UserDetails {
 
     }
 
+    public UUID getUserId() {
+        return user.getId();
+    }
 
     @Override
     public String getPassword() {
-        return "";
+     return "";
     }
 
     @Override

@@ -4,6 +4,7 @@ package com.backend.hotelreservationapi.auth_module.config;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.util.unit.DataSize;
 
 @Component
 @Getter
@@ -24,4 +25,16 @@ public class SecurityEnvironment {
     @Value("${jwt.refresh-token-expiration}")
     private int refreshTokenExpirationInDays;
 
+    @Value("${file.upload.max-size-profile-picture}")
+    private DataSize maxFileSize;
+
+
+    @Value("${cloudinary.cloud-name}")
+    private String cloudName;
+
+    @Value("${cloudinary.cloud-api-key}")
+    private String cloudApiKey;
+
+    @Value("${cloudinary.api-secret}")
+    private String apiSecret;
 }

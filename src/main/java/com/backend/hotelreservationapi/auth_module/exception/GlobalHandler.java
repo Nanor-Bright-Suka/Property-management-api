@@ -2,11 +2,7 @@ package com.backend.hotelreservationapi.auth_module.exception;
 
 
 import com.backend.hotelreservationapi.auth_module.util.ApiErrorResponse;
-import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.UnsupportedJwtException;
-import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -78,6 +74,12 @@ public class GlobalHandler{
 
     }
 
+    @ExceptionHandler(FileStorageException.class)
+    public ResponseEntity<ApiErrorResponse> handleFileStorageException(FileStorageException ex) {
+        return ResponseEntity.status(500).body(new ApiErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage(), null));
+
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ApiErrorResponse> handleBadToken(IllegalArgumentException ex) {
         return ResponseEntity.status(400)
@@ -87,6 +89,20 @@ public class GlobalHandler{
     public ResponseEntity<ApiErrorResponse> handleGenericJwt(JwtException ex) {
         return ResponseEntity.status(401).body(new ApiErrorResponse(401, "invalid or token expired", null));
     }
+
+
+    @ExceptionHandler(FileTypeValidationException.class)
+    public ResponseEntity<ApiErrorResponse> handleFileTypeException(FileTypeValidationException ex) {
+        return ResponseEntity.status(500).body(new ApiErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage(), null));
+    }
+
+
+
+
+
+
+
+
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiErrorResponse> handleGeneric(Exception ex, HttpServletRequest request) {

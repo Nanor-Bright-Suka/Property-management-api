@@ -9,10 +9,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
-
-import java.util.Properties;
 
 @Configuration
 @RequiredArgsConstructor
@@ -40,19 +36,7 @@ public class AppConfig {
         return template;
     }
 
-//    @Bean
-//    public JavaMailSender javaMailSender() {
-//        JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-//
-//        mailSender.setHost(appProperties.getMailHost());
-//        mailSender.setPort(appProperties.getMailPort());
-//        mailSender.setUsername(appProperties.getMailUsername());
-//        mailSender.setPassword(appProperties.getMailPassword());
-//
-//        Properties props = mailSender.getJavaMailProperties();
-//        props.put("mail.smtp.auth", "true");
-//        props.put("mail.smtp.starttls.enable", "true");
-//        props.put("mail.smtp.starttls.required", "true");
-//        return mailSender;
-//    }
+
+
+
 }
