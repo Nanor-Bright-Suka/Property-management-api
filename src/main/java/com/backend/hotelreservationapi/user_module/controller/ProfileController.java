@@ -1,9 +1,10 @@
 package com.backend.hotelreservationapi.user_module.controller;
 
 
-import com.backend.hotelreservationapi.user_module.dto.ProfileResponseDto;
-import com.backend.hotelreservationapi.user_module.dto.UpdateProfileDto;
+import com.backend.hotelreservationapi.user_module.dto.response.ProfileResponseDto;
+import com.backend.hotelreservationapi.user_module.dto.request.UpdateProfileRequestDto;
 import com.backend.hotelreservationapi.user_module.service.ProfileService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +26,7 @@ public class ProfileController {
     }
 
     @PutMapping
-    public ResponseEntity<Map<String, String>> updateProfile(@ModelAttribute UpdateProfileDto dto, @RequestParam("imageFile") MultipartFile imageFile) {
+    public ResponseEntity<Map<String, String>> updateProfile(@Valid @ModelAttribute UpdateProfileRequestDto dto, @RequestParam("imageFile") MultipartFile imageFile) {
         profileService.updateMyProfileService(dto, imageFile);
         Map<String, String> response = new HashMap<>();
         response.put("message", "Profile updated successfully");

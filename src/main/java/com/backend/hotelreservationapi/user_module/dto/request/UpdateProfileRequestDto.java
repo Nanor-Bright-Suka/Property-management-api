@@ -1,4 +1,4 @@
-package com.backend.hotelreservationapi.user_module.dto;
+package com.backend.hotelreservationapi.user_module.dto.request;
 
 
 import jakarta.validation.constraints.Pattern;
@@ -8,7 +8,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class UpdateProfileDto {
+public class UpdateProfileRequestDto {
 
     @Size(min = 2, max = 20, message = "Invalid lastname")
     private String firstName;

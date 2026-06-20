@@ -17,13 +17,13 @@ public class CloudinaryService {
 
     private final CloudinaryConfig cloudinaryConfig;
 
-    public String uploadImage(MultipartFile file) {
+    public String uploadImage(MultipartFile file, String folder) {
 
         try {
             Map uploadResult = cloudinaryConfig.cloudinary().uploader().upload(
                     file.getBytes(),
                     ObjectUtils.asMap(
-                            "folder", "profile-pictures"
+                            "folder", folder
                     )
             );
 

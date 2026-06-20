@@ -26,7 +26,10 @@ public class SecurityEnvironment {
     private int refreshTokenExpirationInDays;
 
     @Value("${file.upload.max-size-profile-picture}")
-    private DataSize maxFileSize;
+    private DataSize maxImageSize;
+
+    @Value("${file.upload.max-document-size}")
+    private DataSize maxDocumentSize;
 
 
     @Value("${cloudinary.cloud-name}")

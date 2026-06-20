@@ -4,13 +4,14 @@ package com.backend.hotelreservationapi.user_module.service;
 import com.backend.hotelreservationapi.auth_module.config.SecurityEnvironment;
 import com.backend.hotelreservationapi.auth_module.exception.FileTypeValidationException;
 import com.backend.hotelreservationapi.auth_module.exception.NotFoundException;
-import com.backend.hotelreservationapi.user_module.dto.ProfileResponseDto;
-import com.backend.hotelreservationapi.user_module.dto.UpdateProfileDto;
+import com.backend.hotelreservationapi.user_module.dto.response.ProfileResponseDto;
+import com.backend.hotelreservationapi.user_module.dto.request.UpdateProfileRequestDto;
 import com.backend.hotelreservationapi.user_module.entity.ProfileEntity;
 import com.backend.hotelreservationapi.user_module.entity.UserEntity;
 import com.backend.hotelreservationapi.user_module.mapper.ProfileMapper;
 import com.backend.hotelreservationapi.user_module.repository.ProfileRepository;
 import com.backend.hotelreservationapi.user_module.repository.UserRepository;
+import com.backend.hotelreservationapi.user_module.validator.FileValidator;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,8 +31,8 @@ public class ProfileService {
     private final ProfileRepository profileRepository;
     private final AuthenticatedUser authenticatedUser;
     private final ProfileMapper profileMapper;
-    private final SecurityEnvironment environment;
     private final CloudinaryService cloudinaryService;
+    private final FileValidator fileValidator;
 
 
 
@@ -64,7 +65,7 @@ public class ProfileService {
 
 
     @Transactional
-    public void updateMyProfileService(UpdateProfileDto dto, MultipartFile imageFile) {
+    public void updateMyProfileService(UpdateProfileRequestDto dto, MultipartFile imageFile) {
 
         UUID authUserId = authenticatedUser.getUserId();
 
@@ -77,31 +78,9 @@ public class ProfileService {
                     return new NotFoundException("Profile not found for user");
                 });
 
-        if (imageFile == null || imageFile.isEmpty()) {
-            throw new FileTypeValidationException("Image file is required");
-        }
+        fileValidator.validateImage(imageFile);
 
-        if (imageFile.getOriginalFilename() == null ||
-                (!imageFile.getOriginalFilename().toLowerCase().endsWith(".png") &&
-                        !imageFile.getOriginalFilename().toLowerCase().endsWith(".jpg") &&
-                        !imageFile.getOriginalFilename().toLowerCase().endsWith(".jpeg"))) {
-
-            log.warn("Invalid file type for profile image {}", imageFile.getOriginalFilename());
-            throw new FileTypeValidationException("Invalid file tpe");
-        }
-
-        if (imageFile.getSize() > environment.getMaxFileSize().toBytes()) {
-            log.warn("File size for profile picture {} exceeds max allowed {}", imageFile.getSize(), environment.getMaxFileSize());
-            throw new FileTypeValidationException("File too large");
-        }
-
-        String contentType = imageFile.getContentType();
-        if (contentType == null ||
-                (!contentType.equals("image/png") && !contentType.equals("image/jpeg"))) {
-            throw new FileTypeValidationException("Only PNG and JPEG are allowed");
-        }
-
-        String imageUrl = cloudinaryService.uploadImage(imageFile);
+        String imageUrl = cloudinaryService.uploadImage(imageFile, "profile-pictures");
 
         profile.setProfilePicUrl(imageUrl);
         profile.setFirstName(dto.getFirstName());

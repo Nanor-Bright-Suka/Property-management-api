@@ -11,33 +11,35 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 
 @RestControllerAdvice
 public class GlobalHandler{
 
-
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiErrorResponse> handleValidationErrors(
+    public ResponseEntity<Map<String, Object>> handleValidationErrors(
             MethodArgumentNotValidException ex,
             HttpServletRequest request
     ) {
 
-        String message = ex.getBindingResult()
+        List<Map<String, String>> errors = ex.getBindingResult()
                 .getFieldErrors()
                 .stream()
-                .map(error -> error.getField() + ": " + error.getDefaultMessage())
-                .findFirst()
-                .orElse("Validation error");
+                .map(error -> {
+                    Map<String, String> map = new HashMap<>();
+                    map.put("field", error.getField());
+                    map.put("message", error.getDefaultMessage());
+                    return map;
+                })
+                .toList();
 
-        return ResponseEntity
-                .badRequest()
-                .body(new ApiErrorResponse(
-                        400,
-                        message,
-                        request.getRequestURI()
+        Map<String, Object> body = new HashMap<>();
+        body.put("errors", errors);
 
-
-                ));
+        return ResponseEntity.badRequest().body(body);
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
@@ -60,6 +62,21 @@ public class GlobalHandler{
     @ExceptionHandler(RateLimitExceededException.class)
     public ResponseEntity<ApiErrorResponse> handleRateLimitExceeded(RateLimitExceededException ex) {
         return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(new ApiErrorResponse(429, ex.getMessage(), null));
+    }
+
+    @ExceptionHandler(FieldValidationException.class)
+    public ResponseEntity<ApiErrorResponse> handleFieldValidationException(FieldValidationException ex) {
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_CONTENT).body(new ApiErrorResponse(HttpStatus.UNPROCESSABLE_CONTENT.value(), ex.getMessage(), null));
+    }
+
+    @ExceptionHandler(ValidationException.class)
+    public ResponseEntity<ApiErrorResponse> handleValidationException(ValidationException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage(), null));
+    }
+
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<ApiErrorResponse> handleBusinessException(BusinessException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiErrorResponse(HttpStatus.CONFLICT.value(), ex.getMessage(), null));
     }
 
 
@@ -95,13 +112,6 @@ public class GlobalHandler{
     public ResponseEntity<ApiErrorResponse> handleFileTypeException(FileTypeValidationException ex) {
         return ResponseEntity.status(500).body(new ApiErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage(), null));
     }
-
-
-
-
-
-
-
 
 
     @ExceptionHandler(Exception.class)
