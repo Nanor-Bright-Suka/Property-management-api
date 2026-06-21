@@ -4,6 +4,7 @@ package com.backend.hotelreservationapi.auth_module.exception;
 import com.backend.hotelreservationapi.auth_module.util.ApiErrorResponse;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -17,10 +18,11 @@ import java.util.Map;
 
 
 @RestControllerAdvice
+@Slf4j
 public class GlobalHandler{
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Object>> handleValidationErrors(
+    public ResponseEntity<Map<String, Object>> handleMethoArgumentNotValidExceptions(
             MethodArgumentNotValidException ex,
             HttpServletRequest request
     ) {
@@ -29,13 +31,17 @@ public class GlobalHandler{
                 .getFieldErrors()
                 .stream()
                 .map(error -> {
-                    Map<String, String> map = new HashMap<>();
-                    map.put("field", error.getField());
-                    map.put("message", error.getDefaultMessage());
-                    return map;
+
+                    String message = "typeMismatch".equals(error.getCode())
+                            ? "Invalid " + error.getField()
+                            : error.getDefaultMessage();
+
+                    return Map.of(
+                            "field", error.getField(),
+                            "message", message
+                    );
                 })
                 .toList();
-
         Map<String, Object> body = new HashMap<>();
         body.put("errors", errors);
 

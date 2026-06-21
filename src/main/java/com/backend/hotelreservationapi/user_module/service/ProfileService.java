@@ -1,8 +1,6 @@
 package com.backend.hotelreservationapi.user_module.service;
 
 
-import com.backend.hotelreservationapi.auth_module.config.SecurityEnvironment;
-import com.backend.hotelreservationapi.auth_module.exception.FileTypeValidationException;
 import com.backend.hotelreservationapi.auth_module.exception.NotFoundException;
 import com.backend.hotelreservationapi.user_module.dto.response.ProfileResponseDto;
 import com.backend.hotelreservationapi.user_module.dto.request.UpdateProfileRequestDto;
@@ -11,12 +9,10 @@ import com.backend.hotelreservationapi.user_module.entity.UserEntity;
 import com.backend.hotelreservationapi.user_module.mapper.ProfileMapper;
 import com.backend.hotelreservationapi.user_module.repository.ProfileRepository;
 import com.backend.hotelreservationapi.user_module.repository.UserRepository;
-import com.backend.hotelreservationapi.user_module.validator.FileValidator;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 
 import java.time.Instant;
@@ -31,8 +27,6 @@ public class ProfileService {
     private final ProfileRepository profileRepository;
     private final AuthenticatedUser authenticatedUser;
     private final ProfileMapper profileMapper;
-    private final CloudinaryService cloudinaryService;
-    private final FileValidator fileValidator;
 
 
 
@@ -65,7 +59,7 @@ public class ProfileService {
 
 
     @Transactional
-    public void updateMyProfileService(UpdateProfileRequestDto dto, MultipartFile imageFile) {
+    public void updateMyProfileService(UpdateProfileRequestDto dto) {
 
         UUID authUserId = authenticatedUser.getUserId();
 
@@ -78,11 +72,7 @@ public class ProfileService {
                     return new NotFoundException("Profile not found for user");
                 });
 
-        fileValidator.validateImage(imageFile);
-
-        String imageUrl = cloudinaryService.uploadImage(imageFile, "profile-pictures");
-
-        profile.setProfilePicUrl(imageUrl);
+        profile.setProfilePicUrl(dto.getProfilePicUrl());
         profile.setFirstName(dto.getFirstName());
         profile.setLastName(dto.getLastName());
         profile.setGender(dto.getGender());

@@ -8,7 +8,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,8 +25,8 @@ public class ProfileController {
     }
 
     @PutMapping
-    public ResponseEntity<Map<String, String>> updateProfile(@Valid @ModelAttribute UpdateProfileRequestDto dto, @RequestParam("imageFile") MultipartFile imageFile) {
-        profileService.updateMyProfileService(dto, imageFile);
+    public ResponseEntity<Map<String, String>> updateProfile(@Valid @RequestBody UpdateProfileRequestDto dto) {
+        profileService.updateMyProfileService(dto);
         Map<String, String> response = new HashMap<>();
         response.put("message", "Profile updated successfully");
         return ResponseEntity.ok(response);

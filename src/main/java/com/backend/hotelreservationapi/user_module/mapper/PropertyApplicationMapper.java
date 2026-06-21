@@ -21,10 +21,7 @@ public class PropertyApplicationMapper {
 
         return new ApplicationPropertyResponseDto(
                 application.getId(),
-                application.getRegistrationNumber(),
                 application.getPropertyType(),
-                application.getPropertyCount(),
-                application.getYearsOfExperience(),
                 application.getDescription(),
                 application.getSubmittedAt(),
                 application.getStatus(),

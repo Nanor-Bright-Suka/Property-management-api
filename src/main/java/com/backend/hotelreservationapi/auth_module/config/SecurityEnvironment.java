@@ -25,19 +25,4 @@ public class SecurityEnvironment {
     @Value("${jwt.refresh-token-expiration}")
     private int refreshTokenExpirationInDays;
 
-    @Value("${file.upload.max-size-profile-picture}")
-    private DataSize maxImageSize;
-
-    @Value("${file.upload.max-document-size}")
-    private DataSize maxDocumentSize;
-
-
-    @Value("${cloudinary.cloud-name}")
-    private String cloudName;
-
-    @Value("${cloudinary.cloud-api-key}")
-    private String cloudApiKey;
-
-    @Value("${cloudinary.api-secret}")
-    private String apiSecret;
 }

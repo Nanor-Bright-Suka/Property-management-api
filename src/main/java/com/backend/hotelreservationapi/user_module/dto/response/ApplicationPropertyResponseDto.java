@@ -10,10 +10,7 @@ import java.util.UUID;
 
 public record ApplicationPropertyResponseDto(
          UUID applicationId,
-         String registrationNumber,
          PropertyType propertyType,
-         Integer propertyCount,
-         Integer yearsOfExperience,
          String description,
          Instant submittedAt,
          PropertyApplicationStatus  propertyApplicationStatus,

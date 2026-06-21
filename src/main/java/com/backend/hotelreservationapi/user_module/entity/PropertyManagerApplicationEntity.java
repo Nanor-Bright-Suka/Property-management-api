@@ -25,14 +25,8 @@ public class PropertyManagerApplicationEntity {
     @JoinColumn(name = "profile_id", nullable = false)
     private ProfileEntity profile;
 
-    private String registrationNumber;
-
     @Enumerated(EnumType.STRING)
     private PropertyType propertyType;
-
-    private int propertyCount;
-
-    private Integer yearsOfExperience;
 
     private String description;
 

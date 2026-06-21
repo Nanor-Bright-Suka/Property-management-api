@@ -13,21 +13,8 @@ import java.util.List;
 @Getter
 @Setter
 public class PropertyApplicationRequestDto {
-
-    @NotBlank(message = "Invalid registration number")
-    @Size(message="Verification number too short", min = 5)
-    private String registrationNumber;
-
     @NotNull(message = "Invalid property type")
     private PropertyType propertyType;
-
-    @NotNull(message = "Invalid property count")
-    @Min(value = 1, message = "Property Count must be at least one")
-    private Integer propertyCount;
-
-    @NotNull(message = "Invalid experience")
-    @Min(value = 0, message = "Experience cannot be negative")
-    private Integer yearsOfExperience;
 
     @NotBlank(message = "Invalid description")
     @Size(message="Description  too short", min = 6)
@@ -36,5 +23,12 @@ public class PropertyApplicationRequestDto {
     @NotEmpty(message = "address cannot be empty")
     @Valid
     List<PropertyAddressRequestDto> propertyAddresses;
+
+    @NotEmpty(message = "Documents are required")
+    @Size(min = 2, max = 2, message = "Exactly 2 documents are required")
+    private List<PropertyDocumentRequestDto> documents;
+
+
+
 
 }

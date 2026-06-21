@@ -1,6 +1,7 @@
 package com.backend.hotelreservationapi.user_module.dto.request;
 
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -22,5 +23,8 @@ public class UpdateProfileRequestDto {
 
     @Size(min = 2, max = 6, message = "Invalid gender")
     private String gender;
+
+    @NotBlank(message = "File URL is required")
+    private String profilePicUrl;
 
 }

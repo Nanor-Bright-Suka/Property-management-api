@@ -20,8 +20,8 @@ public class PropertyManagerController {
     private final PropertyMangerService service;
 
     @PostMapping
-    public ResponseEntity<ApplicationPropertyResponseDto> createApplication (@Valid @ModelAttribute PropertyApplicationRequestDto dto, @RequestParam("documents") List<MultipartFile> files){
-        return ResponseEntity.ok(service.createApplicationService(dto, files));
+    public ResponseEntity<ApplicationPropertyResponseDto> createApplication (@Valid @RequestBody PropertyApplicationRequestDto dto){
+        return ResponseEntity.ok(service.createApplicationService(dto));
     }
 
 
