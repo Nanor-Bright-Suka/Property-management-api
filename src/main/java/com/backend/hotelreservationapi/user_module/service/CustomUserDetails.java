@@ -38,7 +38,7 @@ public class CustomUserDetails implements UserDetails {
     }
 
     public UUID getUserId() {
-        return user.getId();
+        return user.getUserId();
     }
 
     @Override

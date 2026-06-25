@@ -7,6 +7,7 @@ import com.backend.hotelreservationapi.user_module.service.ProfileService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -19,11 +20,14 @@ public class ProfileController {
 
     private final ProfileService profileService;
 
+    @PreAuthorize("hasAuthority('PROFILE_VIEW')")
     @GetMapping
     public ResponseEntity<ProfileResponseDto> myProfile() {
         return ResponseEntity.ok(profileService.getProfile());
     }
 
+
+    @PreAuthorize("hasAuthority('PROFILE_UPDATE')")
     @PutMapping
     public ResponseEntity<Map<String, String>> updateProfile(@Valid @RequestBody UpdateProfileRequestDto dto) {
         profileService.updateMyProfileService(dto);

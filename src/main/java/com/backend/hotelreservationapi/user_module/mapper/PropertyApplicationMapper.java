@@ -9,28 +9,26 @@ import com.backend.hotelreservationapi.user_module.entity.PropertyApplicationDoc
 import com.backend.hotelreservationapi.user_module.entity.PropertyManagerApplicationEntity;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 @Component
 public class PropertyApplicationMapper {
 
     public ApplicationPropertyResponseDto toResponse(
-            PropertyManagerApplicationEntity application,
-            List<PropertyAddressEntity> addresses,
-            List<PropertyApplicationDocumentsEntity> documents) {
+            PropertyManagerApplicationEntity application) {
 
         return new ApplicationPropertyResponseDto(
-                application.getId(),
+                application.getApplicationId(),
                 application.getPropertyType(),
                 application.getDescription(),
                 application.getSubmittedAt(),
                 application.getStatus(),
 
-                addresses.stream()
+                application.getAddresses()
+                        .stream()
                         .map(this::toAddressResponse)
                         .toList(),
 
-                documents.stream()
+                application.getDocuments()
+                        .stream()
                         .map(this::toDocumentResponse)
                         .toList()
         );

@@ -8,11 +8,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +25,7 @@ import java.util.Map;
 @RestControllerAdvice
 @Slf4j
 public class GlobalHandler{
+    private static final String MESSAGE = "message";
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleMethoArgumentNotValidExceptions(
@@ -31,15 +37,14 @@ public class GlobalHandler{
                 .getFieldErrors()
                 .stream()
                 .map(error -> {
-
                     String message = "typeMismatch".equals(error.getCode())
                             ? "Invalid " + error.getField()
                             : error.getDefaultMessage();
 
-                    return Map.of(
-                            "field", error.getField(),
-                            "message", message
-                    );
+                    Map<String, String> errorMap = new LinkedHashMap<>();
+                    errorMap.put("field", error.getField());
+                    errorMap.put(MESSAGE, message != null ? message : "Invalid value");
+                    return errorMap;
                 })
                 .toList();
         Map<String, Object> body = new HashMap<>();
@@ -48,20 +53,36 @@ public class GlobalHandler{
         return ResponseEntity.badRequest().body(body);
     }
 
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<Map<String, Object>> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+
+        Map<String, Object> errorDetails = new LinkedHashMap<>();
+
+        errorDetails.put("timestamp", Instant.now());
+        errorDetails.put("status", HttpStatus.BAD_REQUEST.value());
+        errorDetails.put("error", "Bad Request");
+
+        if ("applicationId".equals(ex.getName())) {
+            errorDetails.put(MESSAGE, "Invalid ID.");
+        } else {
+            errorDetails.put(MESSAGE, "Invalid value provided for parameter: " + ex.getName());
+        }
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetails);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiErrorResponse> handleAccessDenied(AccessDeniedException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiErrorResponse(403, ex.getMessage(), Instant.now().toString()));
+    }
+
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ApiErrorResponse> handleJsonParseError(
             HttpMessageNotReadableException ex,
             HttpServletRequest request
     ) {
-
-        return ResponseEntity
-                .badRequest()
-                .body(new ApiErrorResponse(
-                        400,
-                        "Malformed JSON request",
-                        request.getRequestURI()
-
-                ));
+        return ResponseEntity.badRequest().body(new ApiErrorResponse(400, "Malformed JSON request", request.getRequestURI()));
     }
 
 

@@ -68,7 +68,7 @@ public class JwtService {
            claims.put("roles", roles);
          claims.put("permissions", permissions);
         return Jwts.builder()
-                .id(String.valueOf(user.getId()))
+                .id(String.valueOf(user.getUserId()))
                 .claims(claims)
                 .subject(user.getEmail())
                 .issuedAt(Date.from(Instant.now()))

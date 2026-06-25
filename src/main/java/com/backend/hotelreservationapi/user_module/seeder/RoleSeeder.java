@@ -38,9 +38,12 @@ public class RoleSeeder implements ApplicationRunner {
                 ));
 
         add(normalUser,
-                PermissionEnum.BOOKING_CREATE,
-                PermissionEnum.BOOKING_VIEW_OWN,
-                PermissionEnum.BOOKING_CANCEL_OWN
+             PermissionEnum.PROFILE_VIEW,
+             PermissionEnum.PROFILE_UPDATE,
+            PermissionEnum.APPLICATION_CREATE,
+            PermissionEnum.APPLICATION_VIEW,
+            PermissionEnum.APPLICATION_VIEW_ALL
+
 
         );
 
@@ -73,9 +76,9 @@ public class RoleSeeder implements ApplicationRunner {
                 ));
 
         add(admin,
-                PermissionEnum.USER_MANAGE,
-                PermissionEnum.HOTEL_MANAGE,
-                PermissionEnum.ROLE_MANAGE
+             PermissionEnum.ADMIN_APPLICATION_VIEW_SINGLE,
+            PermissionEnum.ADMIN_APPLICATION_VIEW_ALL,
+            PermissionEnum.ADMIN_APPLICATION_UPDATE
         );
 
 

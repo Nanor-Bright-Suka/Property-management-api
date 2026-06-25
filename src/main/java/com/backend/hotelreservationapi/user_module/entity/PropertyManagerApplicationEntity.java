@@ -5,8 +5,9 @@ import com.backend.hotelreservationapi.user_module.enums.PropertyApplicationStat
 import com.backend.hotelreservationapi.user_module.enums.PropertyType;
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -19,7 +20,7 @@ import java.util.UUID;
 public class PropertyManagerApplicationEntity {
 
     @Id
-    private UUID id;
+    private UUID applicationId;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "profile_id", nullable = false)
@@ -36,6 +37,16 @@ public class PropertyManagerApplicationEntity {
     private Instant submittedAt;
 
     private Instant updatedAt;
+
+
+    @OneToMany(mappedBy = "application")
+    private List<PropertyApplicationDocumentsEntity> documents = new ArrayList<>();
+
+    @OneToMany(mappedBy = "application")
+    private List<PropertyAddressEntity> addresses = new ArrayList<>();
+
+    @OneToMany(mappedBy = "application")
+    private List<ApplicationStatusHistoryEntity> histories = new ArrayList<>();
 
 
 }

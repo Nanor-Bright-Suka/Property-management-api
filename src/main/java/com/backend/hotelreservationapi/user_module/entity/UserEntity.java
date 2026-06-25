@@ -19,7 +19,7 @@ import java.util.*;
 public class UserEntity {
 
     @Id
-    private UUID id;
+    private UUID userId;
 
     @Column(name = "email", nullable = false)
     private String email;
@@ -52,7 +52,7 @@ public class UserEntity {
 
     @PrePersist
     public void onCreate() {
-        this.id = UUID.randomUUID();
+        this.userId = UUID.randomUUID();
         this.isNewUser = true;
         this.createdAt = Instant.now();
     }
@@ -64,12 +64,12 @@ public class UserEntity {
         if (this == o) return true;
         if (!(o instanceof UserEntity)) return false;
         UserEntity u = (UserEntity) o;
-        return id != null && id.equals(u.id);
+        return userId != null && userId.equals(u.userId);
     }
 
     @Override
     public int hashCode() {
-        return id != null ? id.hashCode() : 0;
+        return userId != null ? userId.hashCode() : 0;
     }
 
 
