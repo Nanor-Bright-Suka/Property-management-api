@@ -2,7 +2,7 @@ package com.backend.hotelreservationapi.user_module.entity;
 
 
 import com.backend.hotelreservationapi.user_module.enums.PropertyApplicationStatus;
-import com.backend.hotelreservationapi.user_module.enums.PropertyType;
+import com.backend.hotelreservationapi.user_module.enums.PropertyTypeEnum;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.Instant;
@@ -27,7 +27,7 @@ public class PropertyManagerApplicationEntity {
     private ProfileEntity profile;
 
     @Enumerated(EnumType.STRING)
-    private PropertyType propertyType;
+    private PropertyTypeEnum propertyType;
 
     private String description;
 
@@ -43,10 +43,12 @@ public class PropertyManagerApplicationEntity {
     private List<PropertyApplicationDocumentsEntity> documents = new ArrayList<>();
 
     @OneToMany(mappedBy = "application")
-    private List<PropertyAddressEntity> addresses = new ArrayList<>();
+    private List<PropertyApplicationAddressEntity> addresses = new ArrayList<>();
 
     @OneToMany(mappedBy = "application")
     private List<ApplicationStatusHistoryEntity> histories = new ArrayList<>();
 
+    @OneToMany(mappedBy = "propertyManager", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PropertyEntity> properties;
 
 }

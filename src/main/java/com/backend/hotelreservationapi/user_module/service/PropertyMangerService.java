@@ -4,28 +4,28 @@ package com.backend.hotelreservationapi.user_module.service;
 import com.backend.hotelreservationapi.auth_module.exception.BusinessException;
 import com.backend.hotelreservationapi.auth_module.exception.NotFoundException;
 import com.backend.hotelreservationapi.auth_module.exception.ValidationException;
-import com.backend.hotelreservationapi.user_module.dto.request.PropertyAddressRequestDto;
-import com.backend.hotelreservationapi.user_module.dto.request.PropertyApplicationRequestDto;
-import com.backend.hotelreservationapi.user_module.dto.request.PropertyDocumentRequestDto;
-import com.backend.hotelreservationapi.user_module.dto.request.UpdateApplicationStatusRequestDto;
+import com.backend.hotelreservationapi.user_module.dto.request.*;
 import com.backend.hotelreservationapi.user_module.dto.response.ApplicationPropertyResponseDto;
+import com.backend.hotelreservationapi.user_module.dto.response.PropertyCreationResponseDto;
 import com.backend.hotelreservationapi.user_module.dto.response.UpdateApplicationStatusResponseDto;
 import com.backend.hotelreservationapi.user_module.entity.*;
 import com.backend.hotelreservationapi.user_module.enums.DocumentType;
 import com.backend.hotelreservationapi.user_module.enums.PropertyApplicationStatus;
+import com.backend.hotelreservationapi.user_module.enums.PropertyStatusEnum;
+import com.backend.hotelreservationapi.user_module.enums.RoleEnum;
 import com.backend.hotelreservationapi.user_module.mapper.PropertyApplicationMapper;
+import com.backend.hotelreservationapi.user_module.mapper.PropertyCreationMapper;
 import com.backend.hotelreservationapi.user_module.repository.*;
 import com.backend.hotelreservationapi.user_module.validator.ProfileValidator;
-import jakarta.transaction.Transactional;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -44,6 +44,10 @@ public class PropertyMangerService {
  private final PropertyDocumentRepository propertyDocumentRepository;
  private final PropertyApplicationMapper applicationMapper;
  private final ProfileRepository profileRepository;
+ private final RoleRepository roleRepository;
+ private final FeatureRepository featureRepository;
+ private final PropertyCreationMapper propertyCreationMapper;
+ private final PropertyRepository propertyRepository;
 
 
 
@@ -56,7 +60,7 @@ public class PropertyMangerService {
           .orElseThrow(() -> new NotFoundException("User not found"));
 
   ProfileEntity profile = profileRepository.findByUser(user)
-          .orElseThrow(() -> new NotFoundException("Profile not found"));
+          .orElseThrow(() -> new NotFoundException("Profile is not found"));
 
   boolean hasPending = applicationRepository
           .existsByProfileAndStatus(profile, PropertyApplicationStatus.PENDING_REVIEW);
@@ -70,7 +74,7 @@ public class PropertyMangerService {
  PropertyManagerApplicationEntity createdApplication = createPropertyManagerApplication(profile, dto);
  applicationRepository.save(createdApplication);
 
-  List<PropertyAddressEntity> createdAddress = createPropertyAddress(createdApplication, dto.getPropertyAddresses());
+  List<PropertyApplicationAddressEntity> createdAddress = createPropertyAddress(createdApplication, dto.getPropertyAddresses());
   propertyAddressRepository.saveAll(createdAddress);
 
   ApplicationStatusHistoryEntity createdHistory = createApplicationStatusHistory(createdApplication, user);
@@ -95,9 +99,9 @@ public class PropertyMangerService {
 
  }
 
- private List<PropertyAddressEntity> createPropertyAddress(PropertyManagerApplicationEntity app, List<PropertyAddressRequestDto> addresses) {
-      List<PropertyAddressEntity> address = addresses.stream()
-          .map(addressDto -> PropertyAddressEntity.builder()
+ private List<PropertyApplicationAddressEntity> createPropertyAddress(PropertyManagerApplicationEntity app, List<PropertyApplicationAddressRequestDto> addresses) {
+      List<PropertyApplicationAddressEntity> address = addresses.stream()
+          .map(addressDto -> PropertyApplicationAddressEntity.builder()
                   .id(UUID.randomUUID())
                   .application(app)
                   .city(addressDto.getCity())
@@ -107,6 +111,7 @@ public class PropertyMangerService {
                   .build())
           .toList();
       app.setAddresses(address);
+
       return address;
 
  }
@@ -168,7 +173,7 @@ public class PropertyMangerService {
     }
 
 
-    @Transactional
+    @Transactional(readOnly = true)
     public ApplicationPropertyResponseDto getMyApplicationService(UUID applicationId) {
         UUID authUserId = authenticatedUser.getUserId();
 
@@ -186,7 +191,7 @@ public class PropertyMangerService {
 
 
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<ApplicationPropertyResponseDto> getAllApplicationsService(){
         UUID authUserId = authenticatedUser.getUserId();
 
@@ -202,7 +207,7 @@ public class PropertyMangerService {
     }
 
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<ApplicationPropertyResponseDto> getAllApplicationsAdminService() {
 
         List<PropertyManagerApplicationEntity> applications =
@@ -214,7 +219,7 @@ public class PropertyMangerService {
     }
 
 
-    @Transactional
+    @Transactional(readOnly = true)
     public ApplicationPropertyResponseDto getMyAdminApplicationService(UUID applicationId) {
         PropertyManagerApplicationEntity  foundApplication = applicationRepository.findByApplicationId(applicationId)
                 .orElseThrow(() -> new NotFoundException("Application not found"));
@@ -224,7 +229,9 @@ public class PropertyMangerService {
 
     @Transactional
     public UpdateApplicationStatusResponseDto updateUserApplicationService(UUID applicationId, UpdateApplicationStatusRequestDto dto) {
-        UUID authUserId = authenticatedUser.getUserId();
+
+        RoleEntity propertyManagerRole = roleRepository.findByRoleName(RoleEnum.ROLE_PROPERTY_MANAGER)
+                .orElseThrow(() -> new NotFoundException("Role not found"));
 
         PropertyManagerApplicationEntity application = applicationRepository.findByApplicationId(applicationId)
                         .orElseThrow(() -> new NotFoundException("Application not found"));
@@ -232,14 +239,17 @@ public class PropertyMangerService {
         PropertyApplicationStatus oldStatus = application.getStatus();
         PropertyApplicationStatus newStatus = dto.getApplicationStatus();
 
+        UserEntity foundUser  = application.getProfile().getUser();
+
         if (oldStatus.equals(newStatus)) {
             throw new ValidationException("Application already has status " + newStatus);}
 
+        if(newStatus == PropertyApplicationStatus.APPROVED) {
+            foundUser.addRole(propertyManagerRole);
+            log.info("Role assigned successfully");
+        }
         application.setStatus(newStatus);
         application.setUpdatedAt(Instant.now());
-
-        UserEntity foundUser = userRepository.findByUserId(authUserId)
-                .orElseThrow(() -> new NotFoundException("Profile not found"));
 
         ApplicationStatusHistoryEntity history = new ApplicationStatusHistoryEntity();
         history.setId(UUID.randomUUID());
@@ -251,7 +261,6 @@ public class PropertyMangerService {
         history.setChangedAt(Instant.now());
 
         applicationStatusRepository.save(history);
-        applicationRepository.save(application);
 
 
         return new UpdateApplicationStatusResponseDto(
@@ -262,6 +271,261 @@ public class PropertyMangerService {
                 application.getUpdatedAt()
                        );
     }
+
+
+
+    @Transactional
+    public PropertyCreationResponseDto createPropertyService(PropertyCreateRequestDto dto){
+
+        UUID authId = authenticatedUser.getUserId();
+
+        PropertyManagerApplicationEntity manager = applicationRepository.findByProfileUserUserId(authId)
+                        .orElseThrow(() -> new NotFoundException("Property manager not found"));
+
+        PropertyEntity property = buildProperty(dto, manager);
+     addAddress(dto, property);
+     addPropertyFeatures(dto, property);
+     addMedia(dto, property);
+     propertyRepository.save(property);
+     return propertyCreationMapper.toResponse(property);
+
+    }
+
+    private PropertyEntity buildProperty(PropertyCreateRequestDto dto, PropertyManagerApplicationEntity  manager) {
+        return PropertyEntity.builder()
+                .propertyId(UUID.randomUUID())
+                .price(dto.getPrice())
+                .currency(dto.getCurrency())
+                .listingType(dto.getListType())
+                .propertyType(dto.getPropertyType())
+                .title(dto.getTitle())
+                .propertyManager(manager)
+                .numberOfBedrooms(dto.getNumberOfBedrooms())
+                .propertyStatus(PropertyStatusEnum.AVAILABLE)
+                .build();
+
+    }
+
+    private void addAddress(PropertyCreateRequestDto dto, PropertyEntity property ) {
+         List<PropertyAddressEntity>  addresses =  dto.getAddresses().stream()
+        .map(addr-> PropertyAddressEntity.builder()
+                .id(UUID.randomUUID())
+                .property(property)
+                .city(addr.getCity())
+                .country(addr.getCountry())
+                .address(addr.getAddress())
+                .createdAt(Instant.now())
+                .build()
+        )
+             .toList();
+         property.setAddresses(addresses);
+
+    }
+
+    private void addPropertyFeatures(PropertyCreateRequestDto dto, PropertyEntity property) {
+        List<PropertyFeatureEntity> propertyFeatures = new ArrayList<>();
+        List<FeatureRequestDto> features = dto.getFeatures();
+
+        for (FeatureRequestDto featureRequestDto : features) {
+            String name = featureRequestDto.getFeatureName().trim();
+
+            FeatureEntity feature = featureRepository.findByFeatureNameIgnoreCase(name)
+                    .orElseGet(() -> {
+                        FeatureEntity newFeature = new FeatureEntity();
+                        newFeature.setFeatureId(UUID.randomUUID());
+                      newFeature.setFeatureName(name);
+                     return  newFeature;
+                    });
+
+            PropertyFeatureEntity pf = new PropertyFeatureEntity();
+            pf.setId(UUID.randomUUID());
+            pf.setProperty(property);
+            pf.setFeature(feature);
+
+            propertyFeatures.add(pf);
+
+        }
+
+        property.setPropertyFeature(propertyFeatures);
+    }
+
+
+    private void addMedia(PropertyCreateRequestDto dto, PropertyEntity property){
+     List<PropertyMediaEntity> media = dto.getMedia().stream()
+             .map(med-> PropertyMediaEntity.builder()
+                     .id(UUID.randomUUID())
+                     .mediaUrl(med.getMediaUrl())
+                     .mediaType(med.getMediaType())
+                     .property(property)
+                     .build())
+             .toList();
+     property.setPropertyMedia(media);
+
+    }
+
+    @Transactional
+    public String updatePropertyPostService(UUID propertyId, UpdatePropertyRequestDto dto) {
+
+
+        PropertyEntity foundProperty = propertyRepository.findByPropertyIdAndDeletedFalse(propertyId)
+                .orElseThrow(() -> new NotFoundException("Property not found"));
+
+        foundProperty.setPropertyType(dto.getPropertyType());
+        foundProperty.setPrice(dto.getPrice());
+        foundProperty.setListingType(dto.getListType());
+        foundProperty.setTitle(dto.getTitle());
+        foundProperty.setNumberOfBedrooms(dto.getNumberOfBedrooms());
+        foundProperty.setCurrency(dto.getCurrency());
+
+        updateMedia(foundProperty,dto);
+        updateAddress(foundProperty, dto);
+        updatePropertyFeature(foundProperty, dto);
+
+        propertyRepository.save(foundProperty);
+
+    return "Property Post updated successfully";
+
+    }
+
+
+    private void updateMedia(PropertyEntity foundProperty, UpdatePropertyRequestDto dto) {
+
+            List<PropertyMediaEntity> newMediaList = new ArrayList<>();
+            for (PropertyMediaRequestDto mediaRequestDto : dto.getMedia()) {
+
+                PropertyMediaEntity newPropMedia = new PropertyMediaEntity();
+                newPropMedia.setId(UUID.randomUUID());
+                newPropMedia.setMediaUrl(mediaRequestDto.getMediaUrl());
+                newPropMedia.setMediaType(mediaRequestDto.getMediaType());
+                newPropMedia.setProperty(foundProperty);
+                newMediaList.add(newPropMedia);
+            }
+
+            foundProperty.getPropertyMedia().clear();
+            foundProperty.getPropertyMedia().addAll(newMediaList);
+
+    }
+
+
+    private void updateAddress(PropertyEntity foundProperty, UpdatePropertyRequestDto dto) {
+        List<PropertyAddressEntity> newAdddressList = new ArrayList<>();
+
+        for(PropertyAddressRequestDto addressRequestDto : dto.getAddresses()) {
+            PropertyAddressEntity propAddress = new PropertyAddressEntity();
+            propAddress.setId(UUID.randomUUID());
+            propAddress.setCity(addressRequestDto.getCity());
+            propAddress.setCountry(addressRequestDto.getCountry());
+            propAddress.setAddress(addressRequestDto.getAddress());
+            propAddress.setProperty(foundProperty);
+            propAddress.setCreatedAt(Instant.now());
+            propAddress.setUpdatedAt(Instant.now());
+            newAdddressList.add(propAddress);
+        }
+
+        foundProperty.getAddresses().clear();
+        foundProperty.getAddresses().addAll(newAdddressList);
+    }
+
+
+    private void updatePropertyFeature(PropertyEntity foundProperty, UpdatePropertyRequestDto dto) {
+
+     Set<PropertyFeatureEntity> newPropertyFeature = new HashSet<>();
+     for(FeatureRequestDto featureRequestDto : dto.getFeatures()) {
+         String name = featureRequestDto.getFeatureName().trim();
+         FeatureEntity feature = featureRepository.findByFeatureNameIgnoreCase(name)
+                 .orElseGet(() -> {
+                     FeatureEntity f = new FeatureEntity();
+                     f.setFeatureId(UUID.randomUUID());
+                     f.setFeatureName(name);
+                     return featureRepository.save(f);
+                 });
+
+
+         PropertyFeatureEntity updatedPf = new PropertyFeatureEntity();
+         updatedPf.setId(UUID.randomUUID());
+         updatedPf.setProperty(foundProperty);
+         updatedPf.setFeature(feature);
+
+         newPropertyFeature.add(updatedPf);
+     }
+     foundProperty.getPropertyFeature().clear();
+     foundProperty.getPropertyFeature().addAll(newPropertyFeature);
+
+    }
+
+
+    @Transactional(readOnly = true)
+    public PropertyCreationResponseDto viewPropertyService(UUID propertyId){
+
+     PropertyEntity foundProperty = propertyRepository.findByPropertyIdAndDeletedFalse(propertyId)
+            .orElseThrow(() -> new NotFoundException("Property does not exist"));
+
+      UUID authId = authenticatedUser.getUserId();
+      UUID propertyOwnerId = foundProperty.getPropertyManager().getProfile().getUser().getUserId();
+
+      if(!authId.equals(propertyOwnerId)){
+          throw new AccessDeniedException("Access Denied");
+      }
+
+      return propertyCreationMapper.toResponse(foundProperty);
+    }
+
+
+
+    @Transactional(readOnly = true)
+    public List<PropertyCreationResponseDto> viewAllPropertyPostsService() {
+    log.info("Method executed successfully");
+        List<PropertyEntity> properties = propertyRepository.findAllByDeletedFalse();
+
+        return properties.stream()
+                .map(propertyCreationMapper::toResponse)
+                .toList();
+    }
+
+
+    @Transactional
+    public String deletePropertyPostService(UUID propertyId){
+
+        PropertyEntity foundProperty = propertyRepository.findByPropertyIdAndDeletedFalse(propertyId)
+                .orElseThrow(() -> new NotFoundException("Property post does not exist"));
+
+        UUID authId = authenticatedUser.getUserId();
+        UUID propertyOwnerId = foundProperty.getPropertyManager().getProfile().getUser().getUserId();
+
+        if(!authId.equals(propertyOwnerId)){
+            throw new AccessDeniedException("Access Denied");
+        }
+
+        foundProperty.setDeleted(true);
+        return "Property post deleted successfully";
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

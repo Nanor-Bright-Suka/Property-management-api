@@ -14,4 +14,5 @@ public interface PropertyManagerApplicationRepository extends JpaRepository<Prop
         boolean existsByProfileAndStatus(ProfileEntity profile, PropertyApplicationStatus status);
         Optional<PropertyManagerApplicationEntity>  findByApplicationId(UUID applicationId);
         List<PropertyManagerApplicationEntity> findByProfile_ProfileId(UUID profileId);
+        Optional<PropertyManagerApplicationEntity> findByProfileUserUserId(UUID userId);
 }

@@ -4,7 +4,7 @@ package com.backend.hotelreservationapi.user_module.mapper;
 import com.backend.hotelreservationapi.user_module.dto.response.AddressResponseDto;
 import com.backend.hotelreservationapi.user_module.dto.response.ApplicationPropertyResponseDto;
 import com.backend.hotelreservationapi.user_module.dto.response.DocumentResponseDto;
-import com.backend.hotelreservationapi.user_module.entity.PropertyAddressEntity;
+import com.backend.hotelreservationapi.user_module.entity.PropertyApplicationAddressEntity;
 import com.backend.hotelreservationapi.user_module.entity.PropertyApplicationDocumentsEntity;
 import com.backend.hotelreservationapi.user_module.entity.PropertyManagerApplicationEntity;
 import org.springframework.stereotype.Component;
@@ -35,7 +35,7 @@ public class PropertyApplicationMapper {
     }
 
     private AddressResponseDto toAddressResponse(
-            PropertyAddressEntity address) {
+            PropertyApplicationAddressEntity address) {
 
         return new AddressResponseDto(
                 address.getId(),

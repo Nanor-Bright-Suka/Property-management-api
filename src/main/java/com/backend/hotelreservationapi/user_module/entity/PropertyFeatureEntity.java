@@ -1,19 +1,20 @@
 package com.backend.hotelreservationapi.user_module.entity;
 
+
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.Instant;
 import java.util.UUID;
 
 @Entity
-@Table(name = "property_address")
+@Table(name = "property_feature")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PropertyAddressEntity {
+public class PropertyFeatureEntity {
+
     @Id
     private UUID id;
 
@@ -21,13 +22,7 @@ public class PropertyAddressEntity {
     @JoinColumn(name = "property_id")
     private PropertyEntity property;
 
-    private String city;
-
-    private String country;
-
-    private String address;
-
-    private Instant createdAt;
-
-    private Instant updatedAt;
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "feature_id")
+    private FeatureEntity feature;
 }

@@ -48,12 +48,12 @@ public class RoleSeeder implements ApplicationRunner {
         );
 
 
-        // HOTEL MANAGER
-        RoleEntity hotelManager = roleRepository.findByRoleName(RoleEnum.ROLE_HOTEL_MANAGER)
+        // PROPERTY MANAGER
+        RoleEntity hotelManager = roleRepository.findByRoleName(RoleEnum.ROLE_PROPERTY_MANAGER)
                 .orElseGet(() -> roleRepository.save(
                         RoleEntity.builder()
                                 .id(UUID.randomUUID())
-                                .roleName(RoleEnum.ROLE_HOTEL_MANAGER)
+                                .roleName(RoleEnum.ROLE_PROPERTY_MANAGER)
                                 .createdAt(Instant.now())
                                 .build()
                 ));
@@ -61,7 +61,12 @@ public class RoleSeeder implements ApplicationRunner {
         add(hotelManager,
                 PermissionEnum.ROOM_MANAGE,
                 PermissionEnum.BOOKING_MANAGE,
-                PermissionEnum.REPORT_VIEW
+                PermissionEnum.REPORT_VIEW,
+                PermissionEnum.PROPERTY_POST_CREATE,
+                PermissionEnum.PROPERTY_POST_UPDATE,
+                PermissionEnum.PROPERTY_POST_VIEW,
+                PermissionEnum.PROPERTY_POST_VIEW_ALL,
+                PermissionEnum.PROPERTY_POST_DELETE
         );
 
 
@@ -78,7 +83,12 @@ public class RoleSeeder implements ApplicationRunner {
         add(admin,
              PermissionEnum.ADMIN_APPLICATION_VIEW_SINGLE,
             PermissionEnum.ADMIN_APPLICATION_VIEW_ALL,
-            PermissionEnum.ADMIN_APPLICATION_UPDATE
+            PermissionEnum.ADMIN_APPLICATION_UPDATE,
+                PermissionEnum.PROPERTY_POST_CREATE,
+                PermissionEnum.PROPERTY_POST_UPDATE,
+                PermissionEnum.PROPERTY_POST_VIEW,
+                PermissionEnum.PROPERTY_POST_VIEW_ALL,
+                PermissionEnum.PROPERTY_POST_DELETE
         );
 
 

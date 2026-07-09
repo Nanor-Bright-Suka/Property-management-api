@@ -1,14 +1,15 @@
 package com.backend.hotelreservationapi.user_module.dto.request;
 
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
-
 @Getter
 @Setter
-public class PropertyAddressRequestDto {
+public class PropertyApplicationAddressRequestDto {
+
     @NotBlank(message = "City cannot be blank")
     @Size(min = 4, message = "Must be at least 4 characters")
     private String city;
@@ -20,4 +21,6 @@ public class PropertyAddressRequestDto {
     @NotBlank(message = "Address cannot be blank")
     @Size(min = 4, message = "Must be at least 4 characters")
     private String address;
+
+
 }
