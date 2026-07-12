@@ -30,10 +30,11 @@ import java.io.IOException;
 public class EmailService {
 
     private final SecurityEnvironment securityEnvironment;
+    private final SendGrid sendGrid;
 
     @Async("emailExecutor")
     @Retryable(
-            retryFor = Exception.class,
+            retryFor = InvalidOtpException.class,
             backoff = @Backoff(delay = 2000, multiplier = 3.0)
     )
     public void sendOtpEmailAsync(String email, String otp) {
@@ -48,7 +49,6 @@ public class EmailService {
 
         Mail mail = new Mail(from, subject, to, content);
 
-        SendGrid sg = new SendGrid(securityEnvironment.getApiKey());
         Request request = new Request();
 
         try {
@@ -56,7 +56,7 @@ public class EmailService {
             request.setEndpoint("mail/send");
             request.setBody(mail.build());
 
-            Response response = sg.api(request);
+            Response response = sendGrid.api(request);
 
             log.info("SendGrid response status: {}", response.getStatusCode());
 

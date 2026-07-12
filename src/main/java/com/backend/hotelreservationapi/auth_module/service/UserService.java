@@ -1,5 +1,6 @@
-package com.backend.hotelreservationapi.user_module.service;
+package com.backend.hotelreservationapi.auth_module.service;
 
+import com.backend.hotelreservationapi.auth_module.dto.UserCreationResponseDto;
 import com.backend.hotelreservationapi.auth_module.exception.NotFoundException;
 import com.backend.hotelreservationapi.user_module.entity.RoleEntity;
 import com.backend.hotelreservationapi.user_module.enums.RoleEnum;
@@ -13,18 +14,18 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class UserImpl implements UserService {
+public class  UserService {
 
 
     private final UserRepository userRepository;
     private final RoleRepository  roleRepository;
 
-    @Override
+
     public Optional<UserEntity> findByEmail(String email) {
         return userRepository.findByEmail(email);
     }
 
-    @Override
+
     public UserEntity createUser(String email) {
         UserEntity user = new UserEntity();
         user.setEmail(email);
@@ -35,6 +36,16 @@ public class UserImpl implements UserService {
     }
 
 
+    public UserCreationResponseDto findOrCreateUser(String email) {
+        Optional<UserEntity> existingUser = findByEmail(email);
+
+        if (existingUser.isPresent()) {
+            return new UserCreationResponseDto(existingUser.get(), false);
+        }
+
+        UserEntity user = createUser(email);
+        return new UserCreationResponseDto(user, true);
+    }
 
 
 

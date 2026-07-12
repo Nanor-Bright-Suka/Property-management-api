@@ -8,9 +8,10 @@ import com.backend.hotelreservationapi.auth_module.exception.RateLimitExceededEx
 import com.backend.hotelreservationapi.auth_module.repository.OtpRequestLogRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
@@ -32,20 +33,19 @@ public class Utility {
     private static final long WINDOW_EMAIL_MINUTES = 5;
 
 
-    private static final SecureRandom secureRandom = new SecureRandom();
+    private final SecureRandom secureRandom;
 
     private final RedisTemplate<String, OtpSession> redisOtpSessionTemplate;
     private static final long OTP_TTL_MINUTES = 5;
 
-
-    private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+    private final PasswordEncoder encoder;
     private final StringRedisTemplate redisTemplate;
     private final OtpRequestLogRepository otpRequestLogRepository;
 
 
 
 
-    public  String extractClientIp(HttpServletRequest request) {
+    public  String extractClientIp(@NonNull HttpServletRequest request) {
         String xfHeader = request.getHeader("X-Forwarded-For");
 
         if (xfHeader != null && !xfHeader.isEmpty()) {
@@ -74,6 +74,7 @@ public class Utility {
 
         redisTemplate.opsForValue().increment(key);
     }
+
 
  public  void checkEmailLimit(EmailRequestDto email){
 
@@ -108,7 +109,6 @@ public class Utility {
                 .build();
 
         otpRequestLogRepository.save(log);
-
     }
 
 

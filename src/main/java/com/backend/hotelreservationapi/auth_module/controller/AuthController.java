@@ -30,12 +30,10 @@ public class AuthController {
     }
 
 
-
     @PostMapping("/request-code")
     public ResponseEntity<OtpResponseDto> requestOtp(@Valid @RequestBody EmailRequestDto email, HttpServletRequest request) {
           return ResponseEntity.ok(authService.requestOtp(request, email));
     }
-
 
 
     @PostMapping("/verify-otp")

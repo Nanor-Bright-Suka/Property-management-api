@@ -28,15 +28,6 @@ public class JwtService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final SecurityEnvironment  securityEnvironment;
 
-
-//    private SecretKey getSigningKey() {
-//        return Keys.hmacShaKeyFor(
-//                securityEnvironment.getToken()
-//                        .getBytes(StandardCharsets.UTF_8)
-//        );
-//
-//    }
-
     private SecretKey getSigningKey() {
         String token = securityEnvironment.getToken();
         byte[] bytes = token.getBytes(StandardCharsets.UTF_8);
@@ -61,7 +52,6 @@ public class JwtService {
     public String generateAccessToken(UserEntity user) {
         Map<String, Object> claims = new HashMap<>();
 
-        // Use the new helpers
        Set<String> roles = extractRoles(user);
         Set<String> permissions = extractPermissions(user);
 
@@ -100,7 +90,6 @@ public class JwtService {
 
         String plainToken = UUID.randomUUID().toString();
         String tokenHash = Utility.hashToken(plainToken);
-
 
         RefreshTokenEntity refreshToken = RefreshTokenEntity.builder()
                 .id(UUID.randomUUID())

@@ -8,7 +8,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface PropertyRepository extends JpaRepository<PropertyEntity, UUID> {
-    Optional<PropertyEntity> findByPropertyId(UUID propertyId);
     Optional<PropertyEntity> findByPropertyIdAndDeletedFalse(UUID propertyId);
     List<PropertyEntity> findAllByDeletedFalse();
 }

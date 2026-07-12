@@ -9,12 +9,14 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.security.SecureRandom;
 
 @Configuration
 @RequiredArgsConstructor
 public class AppConfig {
-
-    private final SecurityEnvironment appProperties;
 
     @Bean
     public StringRedisTemplate stringRedisTemplate(RedisConnectionFactory factory) {
@@ -34,6 +36,16 @@ public class AppConfig {
         template.setHashValueSerializer(RedisSerializer.json());
 
         return template;
+    }
+
+    @Bean
+    public SecureRandom secureRandom() {
+        return new SecureRandom();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 
 
