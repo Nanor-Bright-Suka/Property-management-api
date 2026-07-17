@@ -1,6 +1,6 @@
 package com.backend.hotelreservationapi.auth_module.config;
 
-import com.backend.hotelreservationapi.auth_module.service.JwtService;
+import com.backend.hotelreservationapi.auth_module.service.TokenService;
 import com.backend.hotelreservationapi.user_module.service.CustomUserDetailsService;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
@@ -24,7 +24,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private final JwtService jwtService;
+    private final TokenService jwtService;
     private final CustomUserDetailsService customUserDetailsService;
     private final HandlerExceptionResolver handlerExceptionResolver;
 

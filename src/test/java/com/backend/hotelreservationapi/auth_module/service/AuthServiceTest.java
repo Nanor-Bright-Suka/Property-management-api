@@ -1,7 +1,6 @@
 package com.backend.hotelreservationapi.auth_module.service;
 
 import com.backend.hotelreservationapi.auth_module.dto.*;
-import com.backend.hotelreservationapi.auth_module.entity.OtpSession;
 import com.backend.hotelreservationapi.auth_module.enums.OtpRequestStatusEnum;
 import com.backend.hotelreservationapi.auth_module.exception.InvalidOtpException;
 import com.backend.hotelreservationapi.auth_module.exception.RateLimitExceededException;

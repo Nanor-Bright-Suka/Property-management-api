@@ -2,10 +2,8 @@ package com.backend.hotelreservationapi.user_module.entity;
 
 
 import com.backend.hotelreservationapi.auth_module.entity.RefreshTokenEntity;
-import com.backend.hotelreservationapi.user_module.enums.RoleEnum;
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.time.Instant;
 import java.util.*;
 
@@ -36,7 +34,6 @@ public class UserEntity {
     private Set<RefreshTokenEntity> refreshTokens = new HashSet<>();
 
 
-
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_roles",
@@ -56,7 +53,6 @@ public class UserEntity {
         this.isNewUser = true;
         this.createdAt = Instant.now();
     }
-
 
 
     @Override

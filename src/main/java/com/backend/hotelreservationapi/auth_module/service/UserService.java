@@ -26,7 +26,7 @@ public class  UserService {
     }
 
 
-    public UserEntity createUser(String email) {
+    private UserEntity createUser(String email) {
         UserEntity user = new UserEntity();
         user.setEmail(email);
         RoleEntity defaultRole = roleRepository.findByRoleName(RoleEnum.ROLE_USER)

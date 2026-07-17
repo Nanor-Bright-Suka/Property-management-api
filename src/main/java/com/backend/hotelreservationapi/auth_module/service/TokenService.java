@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class JwtService {
+public class TokenService {
 
     private final RefreshTokenRepository refreshTokenRepository;
     private final SecurityEnvironment  securityEnvironment;

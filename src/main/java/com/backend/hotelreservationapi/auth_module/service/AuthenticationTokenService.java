@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AuthenticationTokenService{
 
-  private final JwtService jwtService;
+  private final TokenService jwtService;
 
   public TokenPairDto generateTokens(UserEntity user) {
 
