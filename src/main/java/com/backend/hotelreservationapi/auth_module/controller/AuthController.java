@@ -9,6 +9,7 @@ import com.backend.hotelreservationapi.auth_module.dto.EmailRequestDto;
 import com.backend.hotelreservationapi.auth_module.dto.OtpResponseDto;
 import com.backend.hotelreservationapi.auth_module.dto.VerifyOtpRequestDto;
 import com.backend.hotelreservationapi.auth_module.service.AuthService;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -30,7 +31,7 @@ public class AuthController {
     }
 
 
-    @PostMapping("/request-code")
+    @PostMapping("/request-otp")
     public ResponseEntity<OtpResponseDto> requestOtp(@Valid @RequestBody EmailRequestDto email, HttpServletRequest request) {
           return ResponseEntity.ok(authService.requestOtp(request, email));
     }
