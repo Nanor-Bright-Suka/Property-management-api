@@ -10,11 +10,11 @@ import com.backend.hotelreservationapi.auth_module.exception.InvalidOtpException
 import com.backend.hotelreservationapi.auth_module.exception.RateLimitExceededException;
 import com.backend.hotelreservationapi.auth_module.repository.OtpRequestLogRepository;
 import com.backend.hotelreservationapi.auth_module.service.EmailService;
-import com.backend.hotelreservationapi.auth_module.service.OtpValidationService;
 import com.sendgrid.Request;
 import com.sendgrid.Response;
 import com.sendgrid.SendGrid;
 import jakarta.servlet.http.HttpServletRequest;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,7 +30,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.io.IOException;
 import java.security.SecureRandom;
 import java.time.Duration;
-import java.time.Instant;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
@@ -76,6 +75,12 @@ class UtilityTest {
 
     @InjectMocks
     private Utility utility;
+
+    @BeforeEach
+    void setup() {
+        reset(redisOtpSessionTemplate);
+        reset(otpSessionValueOperations);
+    }
 
 
     @Test
@@ -230,7 +235,7 @@ class UtilityTest {
     String email = "hello@gmail.com";
     String otpHash = "hashedOtp";
 
-   doReturn(otpSessionValueOperations).when(redisOtpSessionTemplate).opsForValue();
+    when(redisOtpSessionTemplate.opsForValue()).thenReturn(otpSessionValueOperations);
 
     utility.storeOtp(email, otpHash);
 
@@ -239,6 +244,9 @@ class UtilityTest {
             any(OtpSession.class),
             eq(Duration.ofMinutes(5)));
     }
+
+
+
 
 
     @Test
